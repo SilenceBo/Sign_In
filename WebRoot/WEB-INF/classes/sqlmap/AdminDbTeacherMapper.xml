@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.boom.admin.mapper.AdminDbTeacherMapper">
+	<resultMap type="com.boom.pojo.DbTeachercustomer" id="DbTeacherCustomerResultMap">
+		<id column="tid" property="tid"/>
+		<result column="tname" property="tname"/>
+		<result column="tnumber" property="tnumber"/>
+		<result column="tsex" property="tsex"/>
+		<result column="tage" property="tage"/>
+		<result column="aid" property="aid"/>
+		<result column="isUnbundling" property="isUnbundling"/>
+		<result column="tuuid" property="tuuid"/>
+		<association property="dbAcademy"  javaType="com.boom.pojo.DbAcademy">
+			<!-- id：关联查询用户的唯 一标识
+			column：指定唯 一标识用户信息的列
+			javaType：映射到user的哪个属性
+			 -->
+			<id column="aid" property="aid"/>
+			<result column="aname" property="aname"/>	
+		</association>
+	</resultMap>
+	
+	<!-- 查询所有老师信息 -->
+	<select id="getAll" resultType="com.boom.pojo.DbTeacher">
+		SELECT * FROM db_teacher
+	</select>
+	
+	<select id="selectByTid" resultType="com.boom.pojo.DbTeachercustomer" parameterType="java.lang.Integer">
+		SELECT * FROM db_teacher where tid = #{value}
+	</select>
+	<!-- 查询所有学生信息 -->
+	<select id="findAll" resultMap="DbTeacherCustomerResultMap">
+		SELECT
+			db_teacher.*,
+			db_academy.aname
+		FROM
+			db_teacher,
+			db_academy
+		WHERE db_teacher.aid = db_academy.aid
+		ORDER by tuuid desc 
+	</select>
+	
+	<!-- 添加学生 -->
+	<insert id="addTeacher" parameterType="com.boom.pojo.DbTeacher">
+		insert into db_teacher
+		<trim prefix="(" suffix=")" suffixOverrides="," >
+	      <if test="tname != null" >
+	        tname,
+	      </if>
+	      <if test="tnumber != null" >
+	        tnumber,
+	      </if>
+	      <if test="tsex != null" >
+	        tsex,
+	      </if>
+	      <if test="tage != null" >
+	        tage,
+	      </if>
+	      <if test="aid != null" >
+	        aid,
+	      </if>
+	    </trim>
+	    <trim prefix="values (" suffix=")" suffixOverrides="," >
+	      <if test="tname != null" >
+	        #{tname},
+	      </if>
+	      <if test="tnumber != null" >
+	        #{tnumber},
+	      </if>
+	      <if test="tsex != null" >
+	        #{tsex},
+	      </if>
+	      <if test="tage != null" >
+	        #{tage},
+	      </if>
+	      <if test="aid != null" >
+	        #{aid},
+	      </if>
+	    </trim>
+	</insert>
+	
+	<!-- 修改学生信息 -->
+	<update id="updateTeacher" parameterType="com.boom.pojo.DbTeacher">
+		update db_teacher 
+		<set>
+		
+	      <if test="tname != null" >
+	        tname = #{tname},
+	      </if>
+	      <if test="tnumber != null" >
+	        tnumber = #{tnumber},
+	      </if>
+	      <if test="tuuid != null" >
+	        tuuid = #{tuuid},
+	      </if>
+	      <if test="tsex != null" >
+	        tsex = #{tsex},
+	      </if>
+	      <if test="tage != null" >
+	        tage = #{tage},
+	      </if>
+	      <if test="aid != null" >
+	        aid = #{aid},
+	      </if>
+	    </set>
+	    where tid = #{tid}
+	</update>
+	
+	<!-- 删除学生信息 -->
+	<delete id="deleteTeacher">
+    	delete from db_teacher where tid in
+    	<foreach collection="array" open="(" close=")" separator="," item="ids">
+            #{ids}
+        </foreach>
+  	</delete>
+  	
+  	<!-- 多条件组合查询学生信息 -->
+	<select id="selectTeacher" parameterType="com.boom.pojo.DbTeachercustomer" resultMap="DbTeacherCustomerResultMap">
+		SELECT 
+			db_teacher.*,
+			db_academy.aname
+		FROM
+			db_teacher,
+			db_academy
+	
+		<trim prefix="where (" prefixOverrides="or" suffix=")">
+			<if test="tname != null">
+				or tname like '%${tname}%'
+			</if>
+			<if test="tnumber !=null">
+				or tnumber like '%${tnumber}%'
+			</if>
+			<if test="tsex != null">
+				or tsex = #{tsex}
+			</if>
+			<if test="tage !=null">
+				or tage like '%${tage}%'
+			</if>
+			<if test="aid != null">
+				or db_teacher.aid = #{aid}
+			</if>
+			<if test="dbAcademy !=null">
+				or db_academy.aname like '%${dbAcademy.aname}%'
+			</if>
+		</trim>	
+			and db_teacher.aid = db_academy.aid
+		
+	</select>
+</mapper>

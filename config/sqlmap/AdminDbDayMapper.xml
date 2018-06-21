@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.boom.admin.mapper.AdminDbDayMapper">
+	
+	<insert id="insert" parameterType="com.boom.pojo.DbDay">
+		insert into db_day(dname,imonth,tid,iid) values(#{dname},#{imonth},#{tid},#{iid})
+	</insert>
+	
+	<update id="update" parameterType="com.boom.pojo.DbDay">
+		update db_day set status=#{status} where imonth=#{imonth} and dname=#{dname} and tid=#{tid}
+	</update>
+	
+	<select id="selectByIid" parameterType="int" resultType="com.boom.pojo.DbDay">
+		SELECT *FROM db_day WHERE iid = #{value}
+	</select>
+	<select id="selectByIidAndDay" parameterType="com.boom.pojo.DbDay" resultType="com.boom.pojo.DbDay">
+		SELECT *FROM db_day WHERE iid = #{iid} 
+		<if test="dname != null">
+			and dname =#{dname}
+		</if>
+	</select>
+	
+	<select id="selectByTidAndMonth" parameterType="com.boom.pojo.DbDay" resultType="com.boom.pojo.DbDay">
+		SELECT *FROM db_day WHERE tid = #{tid} AND Imonth=#{imonth}
+	</select>
+	
+	<update id="updateStatus" parameterType="com.boom.pojo.DbDay">
+		update db_day set status=#{status} where did = #{did}
+	</update>
+	
+	<select id="selectDxByIid" parameterType="int" resultType="com.boom.pojo.DbDay">
+		SELECT *FROM db_day WHERE iid = #{value}
+		ORDER BY `dname` DESC
+	</select>
+	
+	<select id="selectByIidAndDay_SignIn" parameterType="com.boom.pojo.DbDay" resultType="com.boom.pojo.DbDayCustomer">
+		SELECT *FROM db_day WHERE imonth = '${imonth}' and dname = '${dname}' and dtime != ""
+	</select>
+	
+	<update id="updateRetroactiveDbDay" parameterType="com.boom.pojo.DbDay">
+		UPDATE db_day SET dtime = CONCAT(dtime ,'${dtime }',',') WHERE tid = #{tid } AND imonth = '${imonth }' AND dname = '${dname }' 
+	</update>
+</mapper>
